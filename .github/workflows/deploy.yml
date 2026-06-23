@@ -1,0 +1,15 @@
+name: Deploy to Cloudflare Pages
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: 2fe597f83f93c12f22e9d83af6831c1a
+          command: pages deploy . --project-name=e2e-intelligence-map --branch=main
