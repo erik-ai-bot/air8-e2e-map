@@ -128,7 +128,6 @@ svg.L path.draw{stroke-dasharray:1200;stroke-dashoffset:1200;animation:drawIn .9
 .rdim-g{background:rgba(46,220,150,.05);border-color:var(--gn);color:#48e8a8}
 .rdim-y{background:rgba(255,184,58,.05);border-color:var(--yl);color:#ffc858}
 .rdim-r{background:rgba(255,80,104,.05);border-color:var(--rd);color:#ff7088}
-.rdim-stage{background:rgba(var(--stage-rgb),.05);border-color:var(--stage-col);color:var(--stage-col)}
 .rdim:hover{filter:brightness(1.15);transform:translateX(2px)}
 
 /* Scorecard */
@@ -392,8 +391,8 @@ function donut(pct,color){
 }
 function statusBar(s){
   const a=s.sources.filter(x=>x.st==='active').length,p=s.sources.filter(x=>x.st==='partial').length,g=s.sources.filter(x=>x.st==='gap').length,t=a+p+g;
-  const stCol=s.coverage>=80?'var(--gn)':s.coverage>=50?'var(--yl)':'var(--rd)';
-  const barGrad=s.coverage>=80?'linear-gradient(90deg,#1ab878,var(--gn))':s.coverage>=50?'linear-gradient(90deg,#e89e20,var(--yl))':'linear-gradient(90deg,#e0384e,var(--rd))';
+  const stCol=s.coverage>=80?'#2edc96':s.coverage>=50?'#ffb83a':'#ff5068';
+  const barGrad=s.coverage>=80?'linear-gradient(90deg,#1ab878,#2edc96)':s.coverage>=50?'linear-gradient(90deg,#e89e20,#ffb83a)':'linear-gradient(90deg,#e0384e,#ff5068)';
   return '<div class="status-bar"><div class="seg" style="width:100%;background:'+barGrad+'"></div></div>'+
   '<div class="fnode-legend"><span><span class="ld" style="background:'+stCol+'"></span>'+a+' active · '+p+' partial · '+g+' gap</span></div>';
 }
@@ -436,10 +435,6 @@ function sel(i){
 
 function rg(s){
   const w=document.getElementById('gw');
-  const stageCol=s.coverage>=80?'#2edc96':s.coverage>=50?'#ffb83a':'#ff5068';
-  const stageRgb=s.coverage>=80?'46,220,150':s.coverage>=50?'255,184,58':'255,80,104';
-  document.getElementById('gw').style.setProperty('--stage-col',stageCol);
-  document.getElementById('gw').style.setProperty('--stage-rgb',stageRgb);
   let h='<div class="G" id="G">';
 
   // Sources column
@@ -462,14 +457,24 @@ function rg(s){
   // Dimensions column
   h+='<div class="col"><div class="col-title"><span class="ct-dot" style="background:var(--pp)"></span>RISK DIMENSIONS</div><div class="col-items">';
   s.dimensions.forEach(x=>{
-    const rc='rdim-stage'; // use stage color
+    const rc=x.st==='good'?'rdim-g':x.st==='partial'?'rdim-y':'rdim-r';
     const poCls=x.partner?' po':'';
     const poBadge=x.partner?' <span class="po-badge" style="margin-left:4px">🤝</span>':'';
     h+='<div class="n rdim '+rc+poCls+'" id="d_'+x.id+'" onclick="hD(\''+s.id+'\',\''+x.id+'\')" onmouseenter="showTip(event,\''+esc(x.name)+'\',\'Risk Dimension'+(x.partner?' · Partner Opp':'')+'\',\''+esc(x.pNote||'')+'\')\" onmouseleave=\"hideTip()\">'+x.name+poBadge+'</div>';
   });
   h+='</div></div>';
 
-    h+='<svg class="L" id="SV"></svg></div>';
+  // Scorecard column
+  h+='<div class="col"><div class="col-title"><span class="ct-dot" style="background:var(--gn)"></span>SCORECARD</div><div class="col-items">';
+  C.scorecard.forEach(x=>{
+    const pw=x.wts[curProd];
+    const attrs=x.attrs[curProd];
+    const al='';
+    h+='<div class="n sc-n" id="sc_'+x.id+'" style="border-left-color:'+x.color+'"><h4>'+x.name+'</h4><div class="wt">'+pw+' · '+x.cov+'%</div><div class="bar"><div class="fill" style="width:'+x.cov+'%;background:linear-gradient(90deg,'+x.color+'88,'+x.color+')"></div></div>'+al+'</div>';
+  });
+  h+='</div></div>';
+
+  h+='<svg class="L" id="SV"></svg></div>';
   w.innerHTML=h;
   document.getElementById('rm').classList.remove('show');
 
