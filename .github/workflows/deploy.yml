@@ -13,3 +13,5 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: 2fe597f83f93c12f22e9d83af6831c1a
           command: pages deploy . --project-name=e2e-intelligence-map --branch=main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
